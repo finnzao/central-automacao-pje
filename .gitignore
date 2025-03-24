@@ -1,0 +1,12 @@
+.env
+sshCLi
+sshCLi.pub
+/docs/
+__pycache__/
+*.html
+*.png
+*.jpg
+*.log
+*.xlsx
+*.csv
+*.ods
