@@ -1,6 +1,7 @@
 import re
 import json
 import time
+from typing import Literal, List
 import os
 from functools import wraps
 from dotenv import load_dotenv
@@ -269,11 +270,31 @@ def select_tipo_documento(tipoDocumento):
         print(f"Erro ao selecionar o tipo de documento. Captura de tela salva. Erro: {e}")
         raise e
 
-def downloadProcessOnTagSearch(typeDocument):
+DocumentType = Literal[
+    "Selecione",
+    "Certidão",
+    "Certidão de publicação no DJe",
+    "Decisão",
+    "Despacho",
+    "Documento de Comprovação",
+    "Documento de Identificação",
+    "Embargos de Declaração",
+    "Intimação",
+    "Outros documentos",
+    "Pedido de Homologação de Acordo",
+    "Petição",
+    "Petição Inicial",
+    "Procuração",
+    "Sentença",
+    "Substabelecimento",
+    "Termo",
+]
+
+def downloadProcessOnTagSearch(typeDocument: DocumentType) -> List[str]:
     """
     Processa o download dos processos encontrados via pesquisa por tag.
-    Se o tipo de documento (e.g. "Sentença") não existir para algum processo,
-    o número do processo é registrado num arquivo JSON e a execução continua.
+    Se o tipo de documento não existir para algum processo, o número do
+    processo é registrado num arquivo JSON e a execução continua.
     """
     error_processes = []   # Lista para armazenar processos com erro
     process_numbers = []   # Lista para armazenar os números de processo
@@ -304,7 +325,7 @@ def downloadProcessOnTagSearch(typeDocument):
             print("Saiu do frame 'ngFrame'.")
             
             click_element("//*[@id='navbar:ajaxPanelAlerts']/ul[2]/li[5]/a")
-            # Tenta selecionar o tipo de documento "Sentença"
+            # Seleciona o tipo de documento informado
             select_tipo_documento(typeDocument)
             click_element("/html/body/div/div[1]/div/form/span/ul[2]/li[5]/div/div[5]/input")
             time.sleep(5)
@@ -334,6 +355,8 @@ def downloadProcessOnTagSearch(typeDocument):
         print("Processos com erro foram salvos em 'processos_com_erro.json'.")
     print("Processamento concluído.")
     return process_numbers
+
+
 
 def download_requested_processes(process_numbers, etiqueta):
     """
@@ -395,11 +418,12 @@ def main():
     try:
         user, password = os.getenv("USER"), os.getenv("PASSWORD")
         login(user, password)
+        tag = "COBRAR CUSTAS"
         profile = os.getenv("PROFILE")
-        select_profile(profile)
-        search_on_tag("OFICIO CDEP")
-        process_numbers = downloadProcessOnTagSearch("Ofício")
-        download_requested_processes(process_numbers)
+        #select_profile(profile)
+        search_on_tag(tag)
+        process_numbers = downloadProcessOnTagSearch("Selecione")
+        download_requested_processes(process_numbers,tag)
         time.sleep(10)
     finally:
         driver.quit()

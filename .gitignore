@@ -10,3 +10,4 @@ __pycache__/
 *.xlsx
 *.csv
 *.ods
+processos_com_erro.json
